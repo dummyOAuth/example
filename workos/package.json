@@ -1,0 +1,19 @@
+{
+  "name": "example-workos",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --webpack -p 3012",
+    "build": "next build",
+    "start": "next start -p 3012"
+  },
+  "dependencies": {
+    "next": "16.2.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "typescript": "^5"
+  }
+}
