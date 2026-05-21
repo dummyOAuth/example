@@ -1,0 +1,19 @@
+{
+  "name": "example-passport",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/server.ts",
+    "start": "tsx src/server.ts"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "express-session": "^1.18.2"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.5",
+    "typescript": "^5",
+    "@types/express": "^5.0.3",
+    "@types/express-session": "^1.18.2"
+  }
+}

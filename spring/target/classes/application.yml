@@ -1,0 +1,17 @@
+server:
+  port: 3011
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          dummyoauth:
+            client-id: ${OAUTH_CLIENT_ID:demo}
+            client-secret: ${OAUTH_CLIENT_SECRET:demo}
+            scope: openid,profile,email
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          dummyoauth:
+            issuer-uri: ${OAUTH_ISSUER:http://localhost:3000/p/demo}

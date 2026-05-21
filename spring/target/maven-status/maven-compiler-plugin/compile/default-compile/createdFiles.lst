@@ -1,0 +1,3 @@
+com\dummyoauth\examplespring\ExampleSpringApplication.class
+com\dummyoauth\examplespring\SecurityConfig.class
+com\dummyoauth\examplespring\HomeController.class

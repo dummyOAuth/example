@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <title>Spring Boot + dummyoauth</title>
+  </head>
+  <body>
+    <h1>Spring Boot + dummyoauth</h1>
+    <p th:if="${email}">Signed in as <strong th:text="${email}">user</strong> (<span th:text="${sub}">sub</span>)</p>
+    <p th:unless="${email}">
+      Register redirect URI: <code th:text="${redirectHint}">redirect</code>
+    </p>
+    <p th:unless="${email}"><a href="/oauth2/authorization/dummyoauth">Sign in with dummyoauth</a></p>
+    <p th:if="${email}"><a href="/logout">Sign out</a></p>
+  </body>
+</html>
