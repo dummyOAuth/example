@@ -30,25 +30,3 @@ pnpm dev
 ```
 
 Register the redirect URI shown on the example home page on your dummyoauth OAuth client.
-
-## Relationship to the main dummyoauth repo
-
-The **product** repo (`dummyoauth`) keeps `examples/` on disk for development but **does not commit** this tree (see parent `.gitignore`). This directory is its **own git repository** for [github.com/dummyOAuth/example](https://github.com/dummyOAuth/example).
-
-Do **not** run `git init` inside individual folders (`auth0/`, `clerk/`, etc.). Only this `examples/` root should be a git repo.
-
-From the monorepo root after changing examples:
-
-```bash
-node scripts/fix-examples-embedded-git.mjs --unstage   # if nested .git appeared again
-cd examples && git add -A && git commit -m "..."
-```
-
-Or export a clean copy without any `.git` metadata:
-
-```bash
-node scripts/sync-example-repo.mjs /path/to/example-repo-clone
-cd /path/to/example-repo-clone && git add -A && git commit -m "..."
-```
-
-Development and test only — not a production identity provider.
