@@ -1,32 +1,43 @@
 # dummyoauth examples (public repo)
 
-Minimal standalone sample apps for [dummyoauth](https://dummyoauth.com). Each folder has only the dependencies that framework needs.
+Minimal standalone sample apps for [dummyoauth](https://dummyoauth.com). Each uses the **real framework package** where possible.
 
-## Layout
+## Summary
 
-| Folder | Port | Notes |
-|--------|------|--------|
-| `oidc` | 3001 | Vanilla OIDC + PKCE |
-| `authjs` | 3002 | Auth.js (NextAuth v5) |
-| `clerk` | 3003 | Companion OIDC client |
-| `auth0` | 3004 | Companion OIDC client |
-| `supabase` | 3005 | Companion OIDC client |
-| `better-auth` | 3006 | Companion OIDC client |
-| `passport` | 3007 | Express |
-| `firebase` | 3008 | Companion OIDC client |
-| `cognito` | 3009 | Cognito preset issuer |
-| `aspnet` | 3010 | ASP.NET Core |
-| `spring` | 3011 | Spring Boot |
-| `workos` | 3012 | Companion OIDC client |
+| Folder | Package(s) | dummyoauth | Extra setup |
+|--------|------------|------------|-------------|
+| `oidc` | (vanilla `fetch`) | Direct OIDC + PKCE | None |
+| `authjs` | `next-auth` | Direct OIDC provider | `AUTH_SECRET` |
+| `auth0` | `@auth0/nextjs-auth0` | Via Auth0 OIDC connection | Auth0 tenant |
+| `better-auth` | `better-auth` + genericOAuth | Direct discovery | SQLite file auto-created |
+| `passport` | `passport` + `openid-client` | Direct discovery | None |
+| `cognito` | `openid-client` | Cognito **preset** issuer | None |
+| `clerk` | `@clerk/nextjs` | Via Clerk SSO OIDC connection | Clerk app keys |
+| `supabase` | `@supabase/ssr` | Via Supabase OIDC provider | Supabase project |
+| `firebase` | `firebase` | Via Firebase OIDC provider | Firebase project |
+| `workos` | `@workos-inc/authkit-nextjs` | Via WorkOS connection | WorkOS keys |
+| `aspnet` | OpenIdConnect | Direct Authority | .NET SDK |
+| `spring` | Spring OAuth2 client | `issuer-uri` | Java/Maven |
 
-## Run one example
+## Run
 
 ```bash
-cd authjs
+cd authjs   # or any folder
 cp .env.example .env.local
-# Fill OAUTH_* from dummyoauth dashboard Integration
 pnpm install
 pnpm dev
 ```
 
-Register the redirect URI shown on the example home page on your dummyoauth OAuth client.
+Start dummyoauth on port 3000 and register the redirect URI from the example home page.
+
+## Verify builds (monorepo)
+
+```bash
+node scripts/test-examples.mjs
+```
+
+## Git
+
+This tree is a **separate repository** from the main dummyoauth product (parent repo gitignores `examples/`). Do not `git init` inside individual example folders.
+
+Development and test only.

@@ -1,34 +1,37 @@
-import { cookies } from "next/headers";
-import { getOAuthConfig } from "@/lib/oauth";
+import { auth0 } from "@/lib/auth0";
 
-type Props = { searchParams: Promise<{ error?: string }> };
-
-export default async function Page({ searchParams }: Props) {
-  const { error } = await searchParams;
-  const jar = await cookies();
-  const raw = jar.get("session")?.value;
-  let session: { user?: { sub?: string; email?: string; name?: string }; access_token?: string } | null = null;
-  if (raw) {
-    try {
-      session = JSON.parse(raw);
-    } catch {
-      session = null;
-    }
-  }
-  const config = getOAuthConfig();
+export default async function Page() {
+  const session = await auth0.getSession();
+  const connection = process.env.AUTH0_CONNECTION?.trim();
+  const loginHref = connection
+    ? `/auth/login?connection=${encodeURIComponent(connection)}`
+    : "/auth/login";
+  const issuer = (process.env.DUMMYOAUTH_ISSUER ?? "http://localhost:3000/p/demo").replace(/\/$/, "");
+  const appBase = process.env.APP_BASE_URL ?? "http://localhost:3004";
 
   return (
     <main>
       <h1>Auth0 + dummyoauth</h1>
-      <p className="muted">undefined</p>
       <p className="muted">
-        Register redirect URI <code>{config.redirectUri}</code> on your dummyoauth client.
+        This app uses <code>@auth0/nextjs-auth0</code>. Your users sign in through your Auth0 tenant; in dev,
+        federate dummyoauth with a custom OIDC connection (see README).
       </p>
-      {error ? <p className="error">Error: {error}</p> : null}
+      <p className="muted">
+        Callback URL for Auth0: <code>{appBase}/auth/callback</code>
+      </p>
+      <p className="muted">
+        dummyoauth issuer (OIDC connection): <code>{issuer}</code>
+      </p>
+      {connection ? (
+        <p className="muted">
+          Connection: <code>{connection}</code> (via <code>AUTH0_CONNECTION</code>)
+        </p>
+      ) : null}
       <div className="card">
-        <p className="muted">Issuer</p>
-        <p><code>{config.issuer}</code></p>
-        <p className="muted">Client ID: {config.clientId}</p>
+        <p className="muted">Auth0 domain</p>
+        <p>
+          <code>{process.env.AUTH0_DOMAIN ?? "(set AUTH0_DOMAIN)"}</code>
+        </p>
       </div>
       {session?.user ? (
         <div className="card">
@@ -36,10 +39,14 @@ export default async function Page({ searchParams }: Props) {
           {session.user.email ? <p>{session.user.email}</p> : null}
           {session.user.name ? <p>{session.user.name}</p> : null}
           {session.user.sub ? <p><code>{session.user.sub}</code></p> : null}
-          <a className="btn secondary" href="/api/logout">Sign out</a>
+          <a className="btn secondary" href="/auth/logout">
+            Sign out
+          </a>
         </div>
       ) : (
-        <a className="btn" href="/api/login">Sign in with dummyoauth</a>
+        <a className="btn" href={loginHref}>
+          Log in with Auth0
+        </a>
       )}
     </main>
   );

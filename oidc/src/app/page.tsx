@@ -20,7 +20,7 @@ export default async function Page({ searchParams }: Props) {
   return (
     <main>
       <h1>OIDC example</h1>
-      <p className="muted">undefined</p>
+      <p className="muted">Vanilla OAuth 2.0 / OIDC authorization code + PKCE against dummyoauth.</p>
       <p className="muted">
         Register redirect URI <code>{config.redirectUri}</code> on your dummyoauth client.
       </p>

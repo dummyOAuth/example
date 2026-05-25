@@ -1,9 +1,14 @@
 import "express-session";
 
-declare module "express-session" {
-  interface SessionData {
-    oauthState?: string;
-    codeVerifier?: string;
-    user?: Record<string, unknown>;
+declare global {
+  namespace Express {
+    interface User {
+      sub?: string;
+      email?: string;
+      name?: string;
+      [key: string]: unknown;
+    }
   }
 }
+
+export {};

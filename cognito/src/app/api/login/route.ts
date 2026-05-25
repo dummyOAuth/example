@@ -1,20 +1,23 @@
+import * as client from "openid-client";
 import { NextResponse } from "next/server";
-import { fetchDiscovery, getOAuthConfig, pkceChallenge, randomUrlSafe, STATE_COOKIE, VERIFIER_COOKIE } from "@/lib/oauth";
+import { getOidcConfig, redirectUri } from "@/lib/oidc";
+
+const STATE_COOKIE = "oauth_state";
+const VERIFIER_COOKIE = "oauth_verifier";
 
 export async function GET() {
-  const config = getOAuthConfig();
-  const doc = await fetchDiscovery(config.issuer);
-  const state = randomUrlSafe(24);
-  const verifier = randomUrlSafe(48);
-  const url = new URL(doc.authorization_endpoint);
-  url.searchParams.set("client_id", config.clientId);
-  url.searchParams.set("redirect_uri", config.redirectUri);
-  url.searchParams.set("response_type", "code");
-  url.searchParams.set("scope", "openid email profile");
-  url.searchParams.set("state", state);
-  url.searchParams.set("code_challenge", pkceChallenge(verifier));
-  url.searchParams.set("code_challenge_method", "S256");
-  const res = NextResponse.redirect(url.toString());
+  const oidcConfig = await getOidcConfig();
+  const state = client.randomState();
+  const verifier = client.randomPKCECodeVerifier();
+  const challenge = await client.calculatePKCECodeChallenge(verifier);
+  const url = client.buildAuthorizationUrl(oidcConfig, {
+    redirect_uri: redirectUri,
+    scope: "openid email profile",
+    state,
+    code_challenge: challenge,
+    code_challenge_method: "S256",
+  });
+  const res = NextResponse.redirect(url.href);
   const opts = { httpOnly: true, sameSite: "lax" as const, path: "/", maxAge: 600 };
   res.cookies.set(STATE_COOKIE, state, opts);
   res.cookies.set(VERIFIER_COOKIE, verifier, opts);

@@ -1,45 +1,62 @@
-import { cookies } from "next/headers";
-import { getOAuthConfig } from "@/lib/oauth";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
-type Props = { searchParams: Promise<{ error?: string }> };
-
-export default async function Page({ searchParams }: Props) {
-  const { error } = await searchParams;
-  const jar = await cookies();
-  const raw = jar.get("session")?.value;
-  let session: { user?: { sub?: string; email?: string; name?: string }; access_token?: string } | null = null;
-  if (raw) {
-    try {
-      session = JSON.parse(raw);
-    } catch {
-      session = null;
-    }
+async function signIn() {
+  "use server";
+  const result = await auth.api.signInWithOAuth2({
+    body: {
+      providerId: "dummyoauth",
+      callbackURL: "/",
+    },
+    headers: await headers(),
+  });
+  if (result && "url" in result && typeof result.url === "string") {
+    redirect(result.url);
   }
-  const config = getOAuthConfig();
+  throw new Error("Sign-in failed: no authorization URL returned");
+}
+
+async function signOut() {
+  "use server";
+  await auth.api.signOut({ headers: await headers() });
+  redirect("/");
+}
+
+export default async function Page() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  const issuer = (process.env.OAUTH_ISSUER ?? "http://localhost:3000/p/demo").replace(/\/$/, "");
+  const callback =
+    (process.env.BETTER_AUTH_URL ?? "http://localhost:3006") +
+    "/api/auth/oauth2/callback/dummyoauth";
 
   return (
     <main>
       <h1>Better Auth + dummyoauth</h1>
-      <p className="muted">undefined</p>
       <p className="muted">
-        Register redirect URI <code>{config.redirectUri}</code> on your dummyoauth client.
+        Uses <code>better-auth</code> with the <code>genericOAuth</code> plugin and dummyoauth discovery.
       </p>
-      {error ? <p className="error">Error: {error}</p> : null}
-      <div className="card">
-        <p className="muted">Issuer</p>
-        <p><code>{config.issuer}</code></p>
-        <p className="muted">Client ID: {config.clientId}</p>
-      </div>
+      <p className="muted">
+        Callback: <code>{callback}</code>
+      </p>
+      <p className="muted">
+        Issuer: <code>{issuer}</code>
+      </p>
       {session?.user ? (
         <div className="card">
-          <p>Signed in</p>
-          {session.user.email ? <p>{session.user.email}</p> : null}
-          {session.user.name ? <p>{session.user.name}</p> : null}
-          {session.user.sub ? <p><code>{session.user.sub}</code></p> : null}
-          <a className="btn secondary" href="/api/logout">Sign out</a>
+          <p>Signed in as {session.user.email ?? session.user.name ?? session.user.id}</p>
+          <form action={signOut}>
+            <button className="btn secondary" type="submit">
+              Sign out
+            </button>
+          </form>
         </div>
       ) : (
-        <a className="btn" href="/api/login">Sign in with dummyoauth</a>
+        <form action={signIn}>
+          <button className="btn" type="submit">
+            Sign in with dummyoauth
+          </button>
+        </form>
       )}
     </main>
   );

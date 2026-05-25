@@ -1,15 +1,21 @@
 # Clerk + dummyoauth
 
-Companion OIDC client for local testing before wiring Clerk in your app.
+Uses `@clerk/nextjs`. Clerk does not accept a raw external issuer in app code; federate dummyoauth in the Clerk Dashboard.
 
-## Setup
+## Clerk Dashboard
+
+1. **Configure** → **SSO connections** → add **OIDC** (or custom) connection.
+2. Issuer / discovery: your dummyoauth issuer (`http://localhost:3000/p/demo`) and `/.well-known/openid-configuration`.
+3. Client ID and secret from dummyoauth Integration.
+4. Enable the connection for your Clerk application.
+
+## App
 
 ```bash
 cp .env.example .env.local
+# CLERK_* from https://dashboard.clerk.com
 pnpm install
 pnpm dev
 ```
-
-Redirect URI: http://localhost:3003/callback
 
 Development and test only.

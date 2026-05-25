@@ -1,46 +1,55 @@
-import { cookies } from "next/headers";
-import { getOAuthConfig } from "@/lib/oauth";
+import Link from "next/link";
+import { getSignInUrl, getSignUpUrl, withAuth, signOut } from "@workos-inc/authkit-nextjs";
 
-type Props = { searchParams: Promise<{ error?: string }> };
+export default async function Page() {
+  const issuer = (process.env.DUMMYOAUTH_ISSUER ?? "http://localhost:3000/p/demo").replace(/\/$/, "");
+  const { user } = await withAuth();
 
-export default async function Page({ searchParams }: Props) {
-  const { error } = await searchParams;
-  const jar = await cookies();
-  const raw = jar.get("session")?.value;
-  let session: { user?: { sub?: string; email?: string; name?: string }; access_token?: string } | null = null;
-  if (raw) {
-    try {
-      session = JSON.parse(raw);
-    } catch {
-      session = null;
-    }
+  if (user) {
+    return (
+      <main>
+        <h1>WorkOS + dummyoauth</h1>
+        <p className="muted">Signed in via @workos-inc/authkit-nextjs</p>
+        <div className="card">
+          <p>
+            {user.firstName ?? user.email ?? user.id}
+          </p>
+          <form
+            action={async () => {
+              "use server";
+              await signOut();
+            }}
+          >
+            <button className="btn secondary" type="submit">
+              Sign out
+            </button>
+          </form>
+        </div>
+      </main>
+    );
   }
-  const config = getOAuthConfig();
+
+  const signInUrl = await getSignInUrl();
+  const signUpUrl = await getSignUpUrl();
 
   return (
     <main>
       <h1>WorkOS + dummyoauth</h1>
-      <p className="muted">undefined</p>
       <p className="muted">
-        Register redirect URI <code>{config.redirectUri}</code> on your dummyoauth client.
+        Uses <code>@workos-inc/authkit-nextjs</code>. Add a WorkOS connection to your dummyoauth OIDC issuer (README).
       </p>
-      {error ? <p className="error">Error: {error}</p> : null}
-      <div className="card">
-        <p className="muted">Issuer</p>
-        <p><code>{config.issuer}</code></p>
-        <p className="muted">Client ID: {config.clientId}</p>
-      </div>
-      {session?.user ? (
-        <div className="card">
-          <p>Signed in</p>
-          {session.user.email ? <p>{session.user.email}</p> : null}
-          {session.user.name ? <p>{session.user.name}</p> : null}
-          {session.user.sub ? <p><code>{session.user.sub}</code></p> : null}
-          <a className="btn secondary" href="/api/logout">Sign out</a>
-        </div>
-      ) : (
-        <a className="btn" href="/api/login">Sign in with dummyoauth</a>
-      )}
+      <p className="muted">
+        dummyoauth issuer: <code>{issuer}</code>
+      </p>
+      <p className="muted">
+        Redirect: <code>{process.env.WORKOS_REDIRECT_URI ?? "http://localhost:3012/callback"}</code>
+      </p>
+      <Link className="btn" href={signInUrl}>
+        Sign in
+      </Link>{" "}
+      <Link className="btn secondary" href={signUpUrl}>
+        Sign up
+      </Link>
     </main>
   );
 }

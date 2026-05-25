@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { SESSION_COOKIE } from "@/lib/oauth";
+
+const SESSION_COOKIE = "session";
 
 export async function GET() {
   const res = NextResponse.redirect("/");

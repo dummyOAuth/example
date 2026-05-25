@@ -1,46 +1,36 @@
-import { cookies } from "next/headers";
-import { getOAuthConfig } from "@/lib/oauth";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 
-type Props = { searchParams: Promise<{ error?: string }> };
+export const dynamic = "force-dynamic";
 
-export default async function Page({ searchParams }: Props) {
-  const { error } = await searchParams;
-  const jar = await cookies();
-  const raw = jar.get("session")?.value;
-  let session: { user?: { sub?: string; email?: string; name?: string }; access_token?: string } | null = null;
-  if (raw) {
-    try {
-      session = JSON.parse(raw);
-    } catch {
-      session = null;
-    }
-  }
-  const config = getOAuthConfig();
+export default function Page() {
+  const issuer = (process.env.DUMMYOAUTH_ISSUER ?? "http://localhost:3000/p/demo").replace(/\/$/, "");
 
   return (
     <main>
       <h1>Clerk + dummyoauth</h1>
-      <p className="muted">undefined</p>
       <p className="muted">
-        Register redirect URI <code>{config.redirectUri}</code> on your dummyoauth client.
+        Uses <code>@clerk/nextjs</code>. Configure a Clerk <strong>SSO OIDC</strong> connection to your dummyoauth
+        issuer (see README).
       </p>
-      {error ? <p className="error">Error: {error}</p> : null}
-      <div className="card">
-        <p className="muted">Issuer</p>
-        <p><code>{config.issuer}</code></p>
-        <p className="muted">Client ID: {config.clientId}</p>
-      </div>
-      {session?.user ? (
+      <p className="muted">
+        dummyoauth issuer for the connection: <code>{issuer}</code>
+      </p>
+      <p className="muted">
+        Clerk app URLs: sign-in and sign-up redirect to <code>http://localhost:3003</code>
+      </p>
+      <SignedOut>
+        <SignInButton mode="modal">
+          <button className="btn" type="button">
+            Sign in with Clerk
+          </button>
+        </SignInButton>
+      </SignedOut>
+      <SignedIn>
         <div className="card">
-          <p>Signed in</p>
-          {session.user.email ? <p>{session.user.email}</p> : null}
-          {session.user.name ? <p>{session.user.name}</p> : null}
-          {session.user.sub ? <p><code>{session.user.sub}</code></p> : null}
-          <a className="btn secondary" href="/api/logout">Sign out</a>
+          <p>Signed in with Clerk</p>
+          <UserButton />
         </div>
-      ) : (
-        <a className="btn" href="/api/login">Sign in with dummyoauth</a>
-      )}
+      </SignedIn>
     </main>
   );
 }

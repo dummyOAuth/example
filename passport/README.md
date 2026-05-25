@@ -1,12 +1,8 @@
-# Passport.js + openid-client + dummyoauth
+# Passport.js + dummyoauth
 
-Express app using `openid-client` (the same underlying library many Passport OIDC strategies wrap) against your dummyoauth issuer.
+Uses **Passport** with the official **`openid-client/passport`** strategy and dummyoauth OIDC discovery.
 
-## Redirect URI
-
-`http://localhost:3007/auth/callback`
-
-## Run
+## Setup
 
 ```bash
 cp .env.example .env.local
@@ -14,8 +10,6 @@ pnpm install
 pnpm dev
 ```
 
-From repo root: `pnpm dev:example:passport`
-
-Guide: `/guides/integrate-passport`
+Register redirect URI: `http://localhost:3007/auth/callback`
 
 Development and test only.

@@ -1,15 +1,17 @@
 # WorkOS + dummyoauth
 
-Companion OIDC client for enterprise SSO-style testing.
+Uses `@workos-inc/authkit-nextjs`.
 
-## Setup
+## WorkOS Dashboard
+
+Create an OIDC connection (or custom SSO) targeting your dummyoauth issuer and client credentials from Integration. Enable it for your WorkOS environment.
+
+## App
 
 ```bash
 cp .env.example .env.local
 pnpm install
 pnpm dev
 ```
-
-Redirect URI: http://localhost:3012/callback
 
 Development and test only.
